@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Escalas Dínamo</title>
+  
+  <!-- Fontes e Ícones -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Nosso arquivo de Estilo -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Biblioteca Oficial do Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="main-card">
+  <div class="header">
+    <img src="https://a.imagem.app/ojG4J2.md.png" alt="Logo">
+    <h2>Dínamo Escalas</h2>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="nav('painel')">
+      <i class="fas fa-tachometer-alt"></i> Painel de Controle
+    </div>
+    <div class="tab" onclick="nav('visaoGeral')">
+      <i class="fas fa-table"></i> Visão Geral & Edição
+    </div>
+  </div>
+  
+  <div class="month-container">
+    <div class="month-bar" id="barraMeses"></div>
+  </div>
+
+  <div id="painel" class="content active">
+    <div id="statusArea"></div>
+  </div>
+
+  <div id="visaoGeral" class="content">
+    <div class="filter-container">
+      <i class="fas fa-filter" style="color:var(--primary)"></i>
+      <select id="filtroTipo" onchange="carregarVisaoGeral()">
+        <option value="">Selecione um Grupo de Equipes...</option>
+      </select>
+      <button class="btn-p" onclick="carregarVisaoGeral()" id="btnAtualizar">
+        <i class="fas fa-sync-alt"></i> Atualizar
+      </button>
+    </div>
+    <div id="timelineArea" class="timeline-wrapper">
+      <div style="text-align:center; color:#94a3b8; padding:60px;">
+        <i class="fas fa-table" style="font-size:3rem; margin-bottom:15px; opacity:0.3"></i>
+        <p>Selecione um grupo acima para visualizar a escala.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modais Omitidos (São exatamente os mesmos do seu HTML original, basta colar todos os <div id="mod..."> aqui) -->
+<!-- Cole aqui os modais: modHorario, modDia, modSenha, modMsg e modConfirm -->
+
+<!-- Nosso arquivo de Lógica -->
+<script src="app.js"></script>
+</body>
+</html>

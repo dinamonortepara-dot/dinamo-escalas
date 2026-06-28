@@ -1,0 +1,32 @@
+:root { 
+  --primary: #023A58; 
+  --primary-light: #0a4f75;
+  --primary-hover: #032d45;
+  --bg-app: #f4f6f8;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --danger: #ef4444;
+  --danger-light: #fef2f2;
+  --warning: #f59e0b;
+  --warning-light: #fffbeb;
+  --border-color: #e2e8f0;
+  --status-work-bg: #e3f2fd; 
+  --status-work-text: #1565c0; 
+  --status-work-border: #90caf9;
+  --status-off-bg: #f8fafc; 
+  --status-off-text: #94a3b8; 
+  --status-off-border: #cbd5e1;
+  --today-bg: #fffbf0; 
+  --today-border: #f59e0b;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-light: #94a3b8;
+  --bg-light: #f8fafc;
+  --bg-white: #ffffff;
+}
+
+* { box-sizing: border-box; margin:0; padding:0; font-family: 'Inter', sans-serif; }
+body { background: var(--bg-app); padding: 20px; color: var(--text-primary); font-size: 14px; line-height: 1.5; }
+
+/* Cole aqui TODO o restante do conteúdo que estava dentro da tag <style> do seu arquivo original */
+/* (main-card, header, tabs, buttons, timeline-table, modals, loaders, etc.) */
