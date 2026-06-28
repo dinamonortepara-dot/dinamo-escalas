@@ -3,32 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestão de Escalas Dínamo</title>
+  <title>Dínamo Engenharia - Gestão de Escalas</title>
   
-  <!-- Fontes e Ícones -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Nosso arquivo de Estilo -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="assets/css/style.css">
   
-  <!-- Biblioteca Oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
 <div class="main-card">
   <div class="header">
-    <img src="https://a.imagem.app/ojG4J2.md.png" alt="Logo">
-    <h2>Dínamo Escalas</h2>
+    <img src="assets/img/logo.png" alt="Dínamo Logo" onerror="this.src='https://a.imagem.app/ojG4J2.md.png'">
+    <h2>Gestão de Escalas e Equipes</h2>
   </div>
 
   <div class="tabs">
-    <div class="tab active" onclick="nav('painel')">
+    <div class="tab active" data-target="painel">
       <i class="fas fa-tachometer-alt"></i> Painel de Controle
     </div>
-    <div class="tab" onclick="nav('visaoGeral')">
-      <i class="fas fa-table"></i> Visão Geral & Edição
+    <div class="tab" data-target="gestaoEquipes">
+      <i class="fas fa-users-cog"></i> Gestão de Equipes
+    </div>
+    <div class="tab" data-target="visaoGeral">
+      <i class="fas fa-calendar-alt"></i> Calendário
     </div>
   </div>
   
@@ -37,32 +38,37 @@
   </div>
 
   <div id="painel" class="content active">
-    <div id="statusArea"></div>
+    <div id="statusArea">Carregando painel...</div>
+  </div>
+
+  <div id="gestaoEquipes" class="content">
+    <div class="filter-container">
+      <h3>Importação e Gestão</h3>
+      <button class="btn-p" id="btnUploadExcel">
+        <i class="fas fa-file-excel"></i> Importar Planilha (Excel)
+      </button>
+    </div>
+    <div id="areaEquipes">Área de gerenciamento de equipes em construção...</div>
   </div>
 
   <div id="visaoGeral" class="content">
     <div class="filter-container">
-      <i class="fas fa-filter" style="color:var(--primary)"></i>
-      <select id="filtroTipo" onchange="carregarVisaoGeral()">
-        <option value="">Selecione um Grupo de Equipes...</option>
+      <select id="filtroTipo">
+        <option value="">Selecione um Grupo...</option>
       </select>
-      <button class="btn-p" onclick="carregarVisaoGeral()" id="btnAtualizar">
+      <button class="btn-p" id="btnAtualizar">
         <i class="fas fa-sync-alt"></i> Atualizar
       </button>
     </div>
     <div id="timelineArea" class="timeline-wrapper">
       <div style="text-align:center; color:#94a3b8; padding:60px;">
         <i class="fas fa-table" style="font-size:3rem; margin-bottom:15px; opacity:0.3"></i>
-        <p>Selecione um grupo acima para visualizar a escala.</p>
+        <p>Selecione um grupo acima.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modais Omitidos (São exatamente os mesmos do seu HTML original, basta colar todos os <div id="mod..."> aqui) -->
-<!-- Cole aqui os modais: modHorario, modDia, modSenha, modMsg e modConfirm -->
-
-<!-- Nosso arquivo de Lógica -->
-<script src="app.js"></script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
