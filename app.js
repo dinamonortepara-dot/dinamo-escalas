@@ -1,8 +1,8 @@
 // ==========================================
 // 1. CONFIGURAÇÃO DO SUPABASE
 // ==========================================
-const SUPABASE_URL = 'COLE_SUA_URL_AQUI';
-const SUPABASE_ANON_KEY = 'COLE_SUA_CHAVE_ANON_AQUI';
+const SUPABASE_URL = 'https://bdiliwltiftvboudnsq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable__RZ132tr0ghZu4MvK8Mcig_6Kv9yApa';
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -82,6 +82,10 @@ async function carregarTudo() {
     
   } catch (erro) {
     console.error("Erro ao carregar dados:", erro);
+    document.getElementById('statusArea').innerHTML = `
+      <div style='text-align:center;padding:40px;color:var(--danger)'>
+        <p>Erro ao conectar com o banco de dados. Verifique o console.</p>
+      </div>`; 
   }
 }
 
@@ -94,14 +98,10 @@ async function verificarStatusPainel(tipos) {
       </div>`; 
     return; 
   }
-
-  // Aqui nós vamos buscar as estruturas e os dias já gerados para montar os cards
-  // (Como o banco está vazio agora, ele vai exibir "Configuração Pendente" para todos)
   
   let html = '<div class="grid-cards">';
   
   for (let tipo of tipos) {
-    // Busca se existe regra cadastrada para esse tipo de equipe neste mês/ano
     const { data: estData } = await supabase
       .from('estruturas')
       .select('*')
@@ -111,14 +111,13 @@ async function verificarStatusPainel(tipos) {
       .single();
 
     let definido = !!estData;
-    let gerado = false; // Em breve validaremos se já tem dias gerados no calendário_geral
+    let gerado = false; 
 
     let statusClass = gerado ? 'gerado' : (definido ? 'definido' : 'pendente');
     let statusIcon = gerado ? 'lock' : (definido ? 'check' : 'exclamation-triangle');
     let statusText = gerado ? 'Finalizado' : (definido ? 'Pronto para Gerar' : 'Configuração Pendente');
     let hr = estData ? `${estData.horario_inicio} às ${estData.horario_fim}` : 'Não definido';
     
-    // Monta o Card
     html += `
     <div class="st-card">
       <div class="st-header ${statusClass}">
@@ -133,8 +132,3 @@ async function verificarStatusPainel(tipos) {
   
   document.getElementById('statusArea').innerHTML = html + '</div>';
 }
-
-// Futuras funções que implementaremos juntos no próximo passo:
-// async function carregarVisaoGeral() { ... }
-// async function gerarCal(nome) { ... }
-// async function salvarH() { ... }
