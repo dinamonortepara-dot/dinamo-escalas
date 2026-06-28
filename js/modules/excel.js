@@ -1,9 +1,8 @@
 // ==========================================
-// MÓDULO EXCEL - Importação e Exportação
+// MÓDULO EXCEL - Importação de Equipes
 // ==========================================
 import { supabase } from '../config/database.js';
 
-// Variável temporária de segurança (Simula o Login de Coordenador/Admin)
 const USUARIO_LOGADO = {
   nome: "Administrador Sistema",
   nivel_acesso: "admin" 
@@ -11,24 +10,11 @@ const USUARIO_LOGADO = {
 
 export function iniciarModuloExcel() {
   const btnUpload = document.getElementById('btnUploadExcel');
-  const filterContainer = document.querySelector('#gestaoEquipes .filter-container');
   
-  // Cria dinamicamente o botão de Download
-  if (filterContainer && !document.getElementById('btnDownloadExcel')) {
-    const btnDownload = document.createElement('button');
-    btnDownload.className = 'btn-sec';
-    btnDownload.id = 'btnDownloadExcel';
-    btnDownload.innerHTML = '<i class="fas fa-file-download"></i> Baixar Estrutura';
-    filterContainer.appendChild(btnDownload);
-    
-    btnDownload.addEventListener('click', baixarExcel);
-  }
-
-  // Lógica do botão de Upload
   if (btnUpload) {
     btnUpload.addEventListener('click', () => {
       if (USUARIO_LOGADO.nivel_acesso !== 'admin') {
-        alert('Acesso Restrito: Apenas administradores podem atualizar a base de equipes.');
+        alert('Acesso Restrito: Apenas administradores podem atualizar a base.');
         return;
       }
       
@@ -49,63 +35,67 @@ export function iniciarModuloExcel() {
 async function processarArquivo(file) {
   const areaEquipes = document.getElementById('areaEquipes');
   
-  // 1. Feedback visual para o usuário
   areaEquipes.innerHTML = `
     <div style="text-align:center; padding: 40px; color: var(--primary);">
       <i class="fas fa-spinner fa-spin" style="font-size: 2.5rem; margin-bottom: 15px;"></i>
-      <p>Lendo a planilha <b>${file.name}</b>, aguarde...</p>
+      <p>Lendo e sincronizando a planilha <b>${file.name}</b> com o banco de dados...</p>
     </div>
   `;
 
-  // 2. Motor de leitura do arquivo físico
   const reader = new FileReader();
 
   reader.onload = async (e) => {
     try {
-      // Pega o arquivo e passa para o leitor de Excel
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
-      
-      // Lê apenas a primeira aba do Excel
       const primeiraAba = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[primeiraAba];
-      
-      // Converte a aba para uma lista de dados que o Javascript entende (JSON)
       const dadosPlanilha = XLSX.utils.sheet_to_json(worksheet);
 
-      if (dadosPlanilha.length === 0) {
-        throw new Error("A planilha parece estar vazia.");
-      }
+      if (dadosPlanilha.length === 0) throw new Error("A planilha está vazia.");
 
-      // Mostra o sucesso na tela
+      // 1. Mapeamento: Transforma os nomes do seu Excel para os nomes do nosso banco de dados
+      const equipesFormatadas = dadosPlanilha
+        .filter(linha => linha['Prefixo']) // Garante que a linha tem um prefixo válido
+        .map(linha => ({
+          prefixo: String(linha['Prefixo']).trim(),
+          tipo_equipe: String(linha['Tipo Equipe'] || 'NÃO DEFINIDO').trim(),
+          status: String(linha['Status'] || 'ATIVA').toUpperCase().trim(),
+          centro_custo: linha['Centro Custo'] ? String(linha['Centro Custo']).trim() : null,
+          regime: linha['Regime'] ? String(linha['Regime']).trim() : null,
+          veiculo_placa: linha['Veiculo'] ? String(linha['Veiculo']).trim() : null,
+          processo: linha['Processo'] ? String(linha['Processo']).trim() : null,
+          cidade: linha['Cidade/Localidade'] ? String(linha['Cidade/Localidade']).trim() : null,
+          encarregado: linha['Encarregado'] ? String(linha['Encarregado']).trim() : null,
+          supervisor: linha['Supervisor'] ? String(linha['Supervisor']).trim() : null,
+          coordenador: linha['Coordenador'] ? String(linha['Coordenador']).trim() : null
+        }));
+
+      // 2. Envia para o Supabase (upsert: atualiza se já existir, insere se for novo)
+      const { error } = await supabase
+        .from('equipes')
+        .upsert(equipesFormatadas, { onConflict: 'prefixo' });
+
+      if (error) throw error;
+
+      // 3. Sucesso!
       areaEquipes.innerHTML = `
         <div style="background: var(--status-work-bg); color: var(--status-work-text); padding: 25px; border-radius: 12px; border: 1px solid var(--status-work-border);">
-          <h3 style="margin-bottom: 10px;"><i class="fas fa-check-circle"></i> Leitura Concluída!</h3>
-          <p>Foram encontradas <b>${dadosPlanilha.length}</b> linhas na sua planilha.</p>
-          <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);">
-            Agora precisamos mapear essas colunas para salvar no Supabase de forma segura.
-          </p>
+          <h3 style="margin-bottom: 10px;"><i class="fas fa-check-circle"></i> Sincronização Concluída!</h3>
+          <p>Foram cadastradas/atualizadas <b>${equipesFormatadas.length}</b> equipes no sistema.</p>
         </div>
       `;
 
-      // Joga os dados "crus" no console para podermos inspecionar a estrutura real
-      console.log("🔎 [INSPEÇÃO] Dados extraídos do Excel:", dadosPlanilha);
-
     } catch (erro) {
-      console.error("Erro ao ler Excel:", erro);
+      console.error("Erro na sincronização:", erro);
       areaEquipes.innerHTML = `
         <div style="background: var(--danger-light); color: var(--danger); padding: 20px; border-radius: 8px; border: 1px solid var(--danger-light);">
-          <h3><i class="fas fa-exclamation-triangle"></i> Falha na Leitura</h3>
-          <p>Não foi possível processar este arquivo. Verifique se o formato está correto.</p>
+          <h3><i class="fas fa-exclamation-triangle"></i> Falha na Sincronização</h3>
+          <p>${erro.message || 'Verifique se o Excel possui a coluna "Prefixo" e "Tipo Equipe".'}</p>
         </div>
       `;
     }
   };
 
-  // Inicia a leitura de fato
   reader.readAsArrayBuffer(file);
-}
-
-async function baixarExcel() {
-  alert('Iniciando o download... Em breve conectaremos isso ao banco de dados.');
 }
